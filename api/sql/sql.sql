@@ -9,7 +9,7 @@ Create Table usuarios(
     nome Varchar(50) Not Null,
     nick Varchar(50) Not Null Unique,
     email Varchar(50) Not Null Unique,
-    senha Varchar(20) Not Null,
+    senha Varchar(100) Not Null,
     criadoEm Timestamp Default current_timestamp()
 ) ENGINE=INNODB;
 
