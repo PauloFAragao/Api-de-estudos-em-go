@@ -35,7 +35,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//validando os dados inseridos pelo usuário
-	if erro = usuario.Preparar(); erro != nil {
+	if erro = usuario.Preparar("cadastro"); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -122,10 +122,59 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 
 // AtualizarUsuario atualiza os dados de um usuário no banco de dados
 func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Atualizando Usuário!"))
+	// capturando os parâmetros
+	parametros := mux.Vars(r)
+
+	// capturando o Id
+	usuarioID, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// capturando os dados do corpo da requisição
+	corpoRequisicao, erro := ioutil.ReadAll(r.Body)
+	if erro != nil {
+
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	// struct para os dados do usuario
+	var usuario modelos.Usuario
+
+	// extraindo dados do json
+	if erro = json.Unmarshal(corpoRequisicao, &usuario); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// verificando se os dados recebidos são validos
+	if erro = usuario.Preparar("edicao"); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// conexão com o banco de dados
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	// criando um repositório
+	repositorio := repositorios.NovoRepositorioDeUsuarios(db)
+	if erro = repositorio.Atualizar(usuarioID, usuario); erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusNoContent, nil)
+
 }
 
-// DeletarUsuario deleta um usuário do banco de dados
+// DeletarUsuario exclui as informações de um usuário do banco de dados
 func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Deletando Usuário!"))
 }

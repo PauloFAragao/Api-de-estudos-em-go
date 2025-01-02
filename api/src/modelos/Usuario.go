@@ -16,7 +16,7 @@ type Usuario struct {
 	CriadoEm time.Time `json:"CriadoEm,omitempty"`
 }
 
-func (usuario *Usuario) validar() error {
+func (usuario *Usuario) validar(etapa string) error {
 
 	tudoCerto := true
 	resultado := "Os seguintes campos estão em branco: "
@@ -46,7 +46,7 @@ func (usuario *Usuario) validar() error {
 		tudoCerto = false
 	}
 
-	if usuario.Senha == "" {
+	if etapa == "cadastro" && usuario.Senha == "" {
 
 		if !tudoCerto {
 			resultado += ", "
@@ -74,8 +74,8 @@ func (usuario *Usuario) formatar() {
 }
 
 // Preparar vai chamar os métodos para validar e formatar o usuário recebido
-func (usuario *Usuario) Preparar() error {
-	if erro := usuario.validar(); erro != nil {
+func (usuario *Usuario) Preparar(etapa string) error {
+	if erro := usuario.validar(etapa); erro != nil {
 		return erro
 	}
 

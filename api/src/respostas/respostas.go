@@ -12,12 +12,14 @@ func JSON(w http.ResponseWriter, statusCode int, dados interface{}) {
 	// para enviar em json
 	w.Header().Set("Content-Type", "application/json")
 
+	// o status que vai sinalizar na pagina
 	w.WriteHeader(statusCode)
 
-	if erro := json.NewEncoder(w).Encode(dados); erro != nil {
-		log.Fatal(erro)
+	if dados != nil {
+		if erro := json.NewEncoder(w).Encode(dados); erro != nil {
+			log.Fatal(erro)
+		}
 	}
-
 }
 
 // Erro retorna um erro em formato JSON

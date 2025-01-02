@@ -93,6 +93,7 @@ func (repositorio Usuarios) BuscarPorID(ID uint64) (modelos.Usuario, error) {
 	var usuario modelos.Usuario
 
 	if linhas.Next() {
+
 		if erro = linhas.Scan(
 			&usuario.ID,
 			&usuario.Nome,
@@ -105,4 +106,23 @@ func (repositorio Usuarios) BuscarPorID(ID uint64) (modelos.Usuario, error) {
 	}
 
 	return usuario, nil
+}
+
+// Atualizar altera as informações de um usuário no banco de dados
+func (repositorio Usuarios) Atualizar(ID uint64, usuario modelos.Usuario) error {
+	// query para atualizar
+	statemente, erro := repositorio.db.Prepare(
+		"Update usuarios Set nome = ?, nick = ?, email = ? Where id = ? ",
+	)
+	if erro != nil {
+		return erro
+	}
+	defer statemente.Close()
+
+	// executando a query
+	if _, erro = statemente.Exec(usuario.Nome, usuario.Nick, usuario.Email, ID); erro != nil {
+		return erro
+	}
+
+	return nil
 }
