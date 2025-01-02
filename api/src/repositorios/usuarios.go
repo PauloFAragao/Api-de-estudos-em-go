@@ -112,8 +112,7 @@ func (repositorio Usuarios) BuscarPorID(ID uint64) (modelos.Usuario, error) {
 func (repositorio Usuarios) Atualizar(ID uint64, usuario modelos.Usuario) error {
 	// query para atualizar
 	statemente, erro := repositorio.db.Prepare(
-		"Update usuarios Set nome = ?, nick = ?, email = ? Where id = ? ",
-	)
+		"Update usuarios Set nome = ?, nick = ?, email = ? Where id = ? ")
 	if erro != nil {
 		return erro
 	}
@@ -121,6 +120,24 @@ func (repositorio Usuarios) Atualizar(ID uint64, usuario modelos.Usuario) error 
 
 	// executando a query
 	if _, erro = statemente.Exec(usuario.Nome, usuario.Nick, usuario.Email, ID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
+
+// Deletar exclui as informações de um usuário no banco de dados
+func (repositorio Usuarios) Deletar(ID uint64) error {
+
+	// query para deletar
+	statemente, erro := repositorio.db.Prepare("Delete From usuarios Where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statemente.Close()
+
+	// executando a query
+	if _, erro = statemente.Exec(ID); erro != nil {
 		return erro
 	}
 
