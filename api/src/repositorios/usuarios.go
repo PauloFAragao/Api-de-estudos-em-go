@@ -171,7 +171,7 @@ func (repositorio Usuarios) Seguir(usuarioID, seguidorId uint64) error {
 
 	// query
 	statement, erro := repositorio.db.Prepare(
-		"Insert Ignore Into seguidores (usuario_id, seguidor_id) Values (? ,?) ", // o ignore é pra ignorar caso o dado já esteja no banco de dados
+		"Insert Ignore Into seguidores (usuario_id, seguidor_id) Values (? ,?)", // o ignore é pra ignorar caso o dado já esteja no banco de dados
 	)
 	if erro != nil {
 		return erro
@@ -183,4 +183,24 @@ func (repositorio Usuarios) Seguir(usuarioID, seguidorId uint64) error {
 	}
 
 	return nil
+}
+
+// PararDeSeguir permite que um usuario pare de seguir o outro
+func (repositorio Usuarios) PararDeSeguir(usuarioID, seguidorId uint64) error {
+
+	// query
+	statement, erro := repositorio.db.Prepare(
+		"Delete From seguidores Where usuario_id = ? And seguidor_id = ? ",
+	)
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(usuarioID, seguidorId); erro != nil {
+		return erro
+	}
+
+	return nil
+
 }
