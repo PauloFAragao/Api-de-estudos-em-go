@@ -3,6 +3,7 @@ Create DataBase If Not Exists devbook;
 Use devbook;
 
 Drop Table If Exists usuarios;
+Drop Table If Exists seguidores;
 
 Create Table usuarios(
     id Int Auto_increment Primary Key,
@@ -13,3 +14,16 @@ Create Table usuarios(
     criadoEm Timestamp Default current_timestamp()
 ) ENGINE=INNODB;
 
+Create Table seguidores(
+    usuario_id Int Not Null, 
+    Foreign Key (usuario_id)
+    References usuarios(id)
+    On Delete Cascade,
+
+    seguidor_id Int Not Null,
+    Foreign Key (seguidor_id)
+    References usuarios(id)
+    On Delete Cascade,
+
+    Primary key (usuario_id, seguidor_id)
+) ENGINE=INNODB;
