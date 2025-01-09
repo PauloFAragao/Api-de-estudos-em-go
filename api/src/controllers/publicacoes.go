@@ -256,3 +256,37 @@ func DeletarPublicacao(w http.ResponseWriter, r *http.Request) {
 
 	respostas.JSON(w, http.StatusNoContent, nil)
 }
+
+// BuscarPublicacoesPorUsuario trás todas as publicações de um usuário expecifico
+func BuscarPublicacoesPorUsuario(w http.ResponseWriter, r *http.Request) {
+	// pegando os parâmetros
+	parametros := mux.Vars(r)
+
+	// convertendo pra uint64
+	usuarioID, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// Conexão com o banco dedados
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	// criando repositório
+	repositorio := repositorios.NovoRepositorioDePublicacoes(db)
+
+	// buscando publicações
+	publicacoes, erro := repositorio.BuscarPorUsuario(usuarioID)
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusOK, publicacoes)
+
+}
