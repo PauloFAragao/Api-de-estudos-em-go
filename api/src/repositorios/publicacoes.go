@@ -132,3 +132,20 @@ func (repositorio Publicacoes) Atualizar(pulicacaoID uint64, publicacao modelos.
 
 	return nil
 }
+
+// Deletar exclui uma publicação do banco de dados
+func (repositorio Publicacoes) Deletar(pulicacaoID uint64) error {
+	// query
+	statement, erro := repositorio.db.Prepare("Delete From publicacoes Where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	// executando
+	if _, erro = statement.Exec(pulicacaoID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
