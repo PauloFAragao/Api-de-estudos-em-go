@@ -9,6 +9,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // CriarPublicacao adiciona uma nova publicação no banco de dados
@@ -71,6 +74,35 @@ func BuscarPublicacoes(w http.ResponseWriter, r *http.Request) {
 
 // BuscarPublicacao trás uma única publicação
 func BuscarPublicacao(w http.ResponseWriter, r *http.Request) {
+	// pegando os parâmetros
+	parametros := mux.Vars(r)
+
+	// convertendo pra uint64
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// Conexão com o banco dedados
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	// criando repositório
+	reposirio := repositorios.NovoRepositorioDePublicacoes(db)
+
+	// buscando publicação
+	publicacao, erro := reposirio.BuscarPorID(publicacaoID)
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusOK, publicacao)
 
 }
 
