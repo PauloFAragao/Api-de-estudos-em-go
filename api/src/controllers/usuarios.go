@@ -37,7 +37,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//validando os dados inseridos pelo usuário
+	// validando os dados inseridos pelo usuário
 	if erro = usuario.Preparar("cadastro"); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return

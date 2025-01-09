@@ -37,6 +37,12 @@ func CriarPublicacao(w http.ResponseWriter, r *http.Request) {
 	// inserindo o id do autor na publicação
 	publicacao.AutorID = usuarioID
 
+	// validando os dados inseridos pelo usuário
+	if erro = publicacao.Preparar(); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
 	// Conexão com o banco dedados
 	db, erro := banco.Conectar()
 	if erro != nil {
