@@ -75,3 +75,43 @@ func (repositorio Publicacoes) BuscarPorID(publicacaoID uint64) (modelos.Publica
 
 	return publicacao, nil
 }
+
+// Buscar trás as publicações dos usuários seguidos e também do próprio usuário que fez a requisição
+func (repositorio Publicacoes) Buscar(usuarioID uint64) ([]modelos.Publicacao, error) {
+	// query -- Distinct -- para não vir resultados duplicados
+	linhas, erro := repositorio.db.Query(`
+		Select Distinct p.*, u.nick 
+		From publicacoes p 
+		Inner Join usuarios u on u.id = p.autor_id 
+		Inner Join seguidores s on p.autor_id = s.usuario_id
+		Where p.id = ? Or s.seguidor_id = ?
+		Order by 1 desc `, usuarioID, usuarioID) // Order by p.criadaEm -- eu acho que ordenar por criadaEm faz mais sentido
+	if erro != nil {
+		return nil, erro
+	}
+	defer linhas.Close()
+	// Order by p.criadaEm
+
+	var publicacoes []modelos.Publicacao
+
+	for linhas.Next() {
+		var publicacao modelos.Publicacao
+
+		// capturando os dados e jogando em publicacao
+		if erro = linhas.Scan(
+			&publicacao.ID,
+			&publicacao.Titulo,
+			&publicacao.Conteudo,
+			&publicacao.AutorID,
+			&publicacao.Curtidas,
+			&publicacao.CriadaEm,
+			&publicacao.AutorNick,
+		); erro != nil {
+			return nil, erro
+		}
+
+		publicacoes = append(publicacoes, publicacao)
+	}
+
+	return publicacoes, nil
+}
