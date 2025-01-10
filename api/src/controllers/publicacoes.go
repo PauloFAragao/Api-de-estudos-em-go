@@ -290,3 +290,68 @@ func BuscarPublicacoesPorUsuario(w http.ResponseWriter, r *http.Request) {
 	respostas.JSON(w, http.StatusOK, publicacoes)
 
 }
+
+// CurtirPublicacao adiciona uma curtida na publicação
+func CurtirPublicacao(w http.ResponseWriter, r *http.Request) {
+	// pegando os parâmetros
+	parametros := mux.Vars(r)
+
+	// convertendo pra uint64
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// Conexão com o banco dedados
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	// criando repositório
+	reposirio := repositorios.NovoRepositorioDePublicacoes(db)
+
+	// enviando para o banco
+	if erro = reposirio.Curtir(publicacaoID); erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusNoContent, nil)
+
+}
+
+// DescurtirPublicacao subtrai uma curtida na publicação
+func DescurtirPublicacao(w http.ResponseWriter, r *http.Request) {
+	// pegando os parâmetros
+	parametros := mux.Vars(r)
+
+	// convertendo pra uint64
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	// Conexão com o banco dedados
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	// criando repositório
+	reposirio := repositorios.NovoRepositorioDePublicacoes(db)
+
+	// enviando para o banco
+	if erro = reposirio.Descurtir(publicacaoID); erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusNoContent, nil)
+}
