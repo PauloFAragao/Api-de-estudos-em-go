@@ -39,6 +39,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 
 	// validando os dados inseridos pelo usuário
 	if erro = usuario.Preparar("cadastro"); erro != nil {
+
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -46,6 +47,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 	// Conexão com o banco dedados
 	db, erro := banco.Conectar()
 	if erro != nil {
+
 		respostas.Erro(w, http.StatusInternalServerError, erro)
 		return
 	}
@@ -55,6 +57,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 
 	usuario.ID, erro = repositorio.Criar(usuario)
 	if erro != nil {
+
 		respostas.Erro(w, http.StatusInternalServerError, erro)
 		return
 	}
