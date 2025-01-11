@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"webapp/src/config"
+	"webapp/src/cookies"
 	"webapp/src/router"
 	"webapp/src/utils"
 )
@@ -12,7 +13,8 @@ import (
 func main() {
 
 	config.Carregar()         // carregando as variáveis de ambiente
-	utils.CarregarTemplates() // carregando os arquivos .html
+	cookies.Configurar()      // carregando as configurações dos cookies
+	utils.CarregarTemplates() // carregando os arquivos .html e suas dependências
 
 	r := router.Gerar()
 
