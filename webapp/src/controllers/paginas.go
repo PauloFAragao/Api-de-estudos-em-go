@@ -16,3 +16,9 @@ func CarregarPaginaDeCadastroDeUsuario(w http.ResponseWriter, r *http.Request) {
 	// renderizando a pagina de login
 	utils.ExecutarTemplate(w, "cadastro.html", nil)
 }
+
+// CarregarPaginaPrincipal carrega a página principal com as publicações
+func CarregarPaginaPrincipal(w http.ResponseWriter, r *http.Request) {
+	// renderizando a pagina de login
+	utils.ExecutarTemplate(w, "home.html", nil)
+}
