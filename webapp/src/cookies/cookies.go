@@ -38,3 +38,23 @@ func Salvar(w http.ResponseWriter, ID, token string) error {
 
 	return nil
 }
+
+// Ler retorna os valores armazenados no cookie
+func Ler(r *http.Request) (map[string]string, error) {
+	// pegando os cookies do navegador
+	cookie, erro := r.Cookie("dados")
+	if erro != nil {
+		return nil, erro
+	}
+
+	// variável para receber os valores dentro do cookie
+	valores := make(map[string]string)
+
+	// descodificando o cookie
+	if erro = s.Decode("dados", cookie.Value, &valores); erro != nil {
+		return nil, erro
+	}
+
+	return valores, nil
+
+}
