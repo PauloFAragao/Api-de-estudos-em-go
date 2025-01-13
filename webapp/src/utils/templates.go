@@ -11,6 +11,9 @@ var templates *template.Template
 func CarregarTemplates() {
 	// carregando os arquivos html na variável
 	templates = template.Must(templates.ParseGlob("views/*.html"))
+
+	// carregando os templates
+	templates = template.Must(templates.ParseGlob("views/templates/*.html"))
 }
 
 // ExecutarTemplate renderiza uma página html na tela
