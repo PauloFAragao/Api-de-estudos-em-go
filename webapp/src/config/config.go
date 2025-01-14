@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	// APIURL apresenta a URL para comunicação com a API
+	// API_URL apresenta a URL para comunicação com a API
 	APIURL = ""
 
 	// Porta onde a aplicação web está rodando

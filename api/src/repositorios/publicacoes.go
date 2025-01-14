@@ -84,8 +84,8 @@ func (repositorio Publicacoes) Buscar(usuarioID uint64) ([]modelos.Publicacao, e
 		From publicacoes p 
 		Inner Join usuarios u on u.id = p.autor_id 
 		Inner Join seguidores s on p.autor_id = s.usuario_id
-		Where p.id = ? Or s.seguidor_id = ?
-		Order by 1 desc `, usuarioID, usuarioID) // Order by p.criadaEm -- eu acho que ordenar por criadaEm faz mais sentido
+		Where u.id = ? Or s.seguidor_id = ?
+		Order by 1 desc; `, usuarioID, usuarioID) // Order by p.criadaEm -- eu acho que ordenar por criadaEm faz mais sentido
 	if erro != nil {
 		return nil, erro
 	}
