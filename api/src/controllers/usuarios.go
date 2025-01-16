@@ -422,6 +422,10 @@ func AtualizarSenha(w http.ResponseWriter, r *http.Request) {
 
 	// lendo o corpo da requisisão
 	corpoRequisicao, erro := ioutil.ReadAll(r.Body)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
 
 	// struct para trocar a senha
 	var senha modelos.Senha
@@ -450,7 +454,7 @@ func AtualizarSenha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// verificando se a senha fornessida como senha atual e a senha gardada no banco são iguais
+	// verificando se a senha fornecida como senha atual e a senha gardada no banco são iguais
 	if erro = seguranca.VerificarSenha(senhaSalvaNoBanco, senha.Atual); erro != nil {
 		respostas.Erro(w, http.StatusUnauthorized, errors.New("a senha atual não condiz com a senha que está salva no banco"))
 		return
