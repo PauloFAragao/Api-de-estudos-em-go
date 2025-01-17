@@ -81,3 +81,36 @@ func CurtirPublicacao(w http.ResponseWriter, r *http.Request) {
 	respostas.JSON(w, response.StatusCode, nil)
 
 }
+
+// DescurtirPublicacao chama a API para descurtir uma publicação
+func DescurtirPublicacao(w http.ResponseWriter, r *http.Request) {
+	// capturando os parametros
+	parametros := mux.Vars(r)
+
+	// id da publicação
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.JSON(w, http.StatusBadRequest, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	// criando a rota para enviar para a api
+	url := fmt.Sprintf("%s/publicacoes/%d/descurtir", config.APIURL, publicacaoID)
+
+	// fazendo a requisição para a api
+	response, erro := requisicoes.FazerRequisicaoComAutenticacao(r, http.MethodPost, url, nil)
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	// verificando o status code da resposta
+	if response.StatusCode >= 400 {
+		respostas.TratarStatusCodeDeErro(w, response)
+		return
+	}
+
+	respostas.JSON(w, response.StatusCode, nil)
+
+}
