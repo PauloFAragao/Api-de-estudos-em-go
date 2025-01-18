@@ -3,6 +3,8 @@ $('#nova-publicacao').on('submit', crirarPublicacao)
 $(document).on('click', '.curtir-publicacao', curtirPublicacao)
 $(document).on('click', '.descurtir-publicacao', descurtirPublicacao)
 
+$('#atualizar-publicacao').on('click', atualizarPublicacao)
+
 function crirarPublicacao(evento)
 {
     evento.preventDefault();
@@ -78,5 +80,27 @@ function descurtirPublicacao(evento)
         alert("Erro ao retirar o curtir publicação!");
     }).always(function(){
         elementoClicado.prop('disabled', false);
+    })
+}
+
+function atualizarPublicacao(evento)
+{
+    $(this).prop('disabled', true);
+
+    const publicacaoId = $(this).data('publicacao-id');
+    
+    $.ajax({
+        url: `/publicacoes/${publicacaoId}`,
+        method: "PUT",
+        data: {
+            titulo: $('#titulo').val(),
+            conteudo: $('#conteudo').val()
+        }
+    }).done(function(){
+        alert("publicação editada com sucesso");
+    }).fail(function(){
+        alert("Erro ao editar publicação");
+    }).always(function(){
+        $('#atualizar-publicacao').prop('disabled', false);
     })
 }

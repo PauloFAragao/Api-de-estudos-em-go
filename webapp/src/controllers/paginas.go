@@ -69,8 +69,8 @@ func CarregarPaginaPrincipal(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// CarregarPaginaDeEdicaoDePublicacao carrega a página de edição de publicação
-func CarregarPaginaDeEdicaoDePublicacao(w http.ResponseWriter, r *http.Request) {
+// CarregarPaginaDeAtualizacaoDePublicacao carrega a página de edição de publicação
+func CarregarPaginaDeAtualizacaoDePublicacao(w http.ResponseWriter, r *http.Request) {
 
 	// capturando os parâmetros
 	parametros := mux.Vars(r)
