@@ -11,15 +11,17 @@ import (
 	"webapp/src/requisicoes"
 	"webapp/src/respostas"
 	"webapp/src/utils"
+
+	"github.com/gorilla/mux"
 )
 
-// CarregarTelaDeLogin vai renderizar a tela de login
+// CarregarTelaDeLogin renderiza a tela de login
 func CarregarTelaDeLogin(w http.ResponseWriter, r *http.Request) {
 	// renderizando a pagina de login
 	utils.ExecutarTemplate(w, "login.html", nil)
 }
 
-// CarregarPaginaDeCadastroDeUsuario vai carregar a pagina de cadastro do usuário
+// CarregarPaginaDeCadastroDeUsuario carrega a pagina de cadastro do usuário
 func CarregarPaginaDeCadastroDeUsuario(w http.ResponseWriter, r *http.Request) {
 	// renderizando a pagina de login
 	utils.ExecutarTemplate(w, "cadastro.html", nil)
@@ -65,4 +67,46 @@ func CarregarPaginaPrincipal(w http.ResponseWriter, r *http.Request) {
 		Publicacoes: publicacoes,
 		UsuarioID:   usuarioID,
 	})
+}
+
+// CarregarPaginaDeEdicaoDePublicacao carrega a página de edição de publicação
+func CarregarPaginaDeEdicaoDePublicacao(w http.ResponseWriter, r *http.Request) {
+
+	// capturando os parâmetros
+	parametros := mux.Vars(r)
+
+	// capturando o id que veio como parâmetro
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.JSON(w, http.StatusBadRequest, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	// criando a url
+	url := fmt.Sprintf("%s/publicacoes/%d", config.APIURL, publicacaoID)
+
+	// requisição
+	response, erro := requisicoes.FazerRequisicaoComAutenticacao(r, http.MethodGet, url, nil)
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	// verificando o status code de resposta
+	if response.StatusCode >= 400 {
+		respostas.TratarStatusCodeDeErro(w, response)
+		return
+	}
+
+	var publicacao modelos.Publicacao
+
+	// tratando o json
+	if erro = json.NewDecoder(response.Body).Decode(&publicacao); erro != nil {
+		respostas.JSON(w, http.StatusUnprocessableEntity, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	utils.ExecutarTemplate(w, "atualizar-publicacao.html", publicacao)
+
 }
