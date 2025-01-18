@@ -161,3 +161,35 @@ func AtualizarPublicacao(w http.ResponseWriter, r *http.Request) {
 	respostas.JSON(w, response.StatusCode, nil)
 
 }
+
+// DeletarPublicacao chama a API para deletar uma publicação
+func DeletarPublicacao(w http.ResponseWriter, r *http.Request) {
+	// capturando os parametros
+	parametros := mux.Vars(r)
+
+	// id da publicação
+	publicacaoID, erro := strconv.ParseUint(parametros["publicacaoId"], 10, 64)
+	if erro != nil {
+		respostas.JSON(w, http.StatusBadRequest, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	// url da api
+	url := fmt.Sprintf("%s/publicacoes/%d", config.APIURL, publicacaoID)
+
+	// fazendo a requisição
+	response, erro := requisicoes.FazerRequisicaoComAutenticacao(r, http.MethodDelete, url, nil)
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	// verificando o status code da resposta
+	if response.StatusCode >= 400 {
+		respostas.TratarStatusCodeDeErro(w, response)
+		return
+	}
+
+	respostas.JSON(w, response.StatusCode, nil)
+}
