@@ -17,6 +17,16 @@ import (
 
 // CarregarTelaDeLogin renderiza a tela de login
 func CarregarTelaDeLogin(w http.ResponseWriter, r *http.Request) {
+
+	// lendo o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// verificando a propriedade token
+	if cookie["token"] != "" {
+		http.Redirect(w, r, "/home", http.StatusFound)
+		return
+	}
+
 	// renderizando a pagina de login
 	utils.ExecutarTemplate(w, "login.html", nil)
 }
