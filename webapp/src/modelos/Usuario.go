@@ -114,6 +114,7 @@ func BuscarDadosDoUsuario(canal chan<- Usuario, usuarioID uint64, r *http.Reques
 
 // BuscarSeguidores chama a api para buscar os seguidores do usuário
 func BuscarSeguidores(canal chan<- []Usuario, usuarioID uint64, r *http.Request) {
+
 	// url para a api
 	url := fmt.Sprintf("%s/usuarios/%d/seguidores", config.APIURL, usuarioID)
 
@@ -126,10 +127,15 @@ func BuscarSeguidores(canal chan<- []Usuario, usuarioID uint64, r *http.Request)
 	defer response.Body.Close()
 
 	var seguidores []Usuario
-
 	// lendo o json
 	if erro = json.NewDecoder(response.Body).Decode(&seguidores); erro != nil {
 		canal <- nil
+		return
+	}
+
+	// verificando se a quantidade de seguidores é 0
+	if seguidores == nil {
+		canal <- make([]Usuario, 0) // slice vazio
 		return
 	}
 
@@ -158,6 +164,12 @@ func BuscarSeguindo(canal chan<- []Usuario, usuarioID uint64, r *http.Request) {
 		return
 	}
 
+	// verificando se a quantidade de usuários que o usuário segue é 0
+	if seguindo == nil {
+		canal <- make([]Usuario, 0) // slice vazio
+		return
+	}
+
 	// enviando o usuário pelo canal
 	canal <- seguindo
 }
@@ -180,6 +192,12 @@ func BuscarPublicacoes(canal chan<- []Publicacao, usuarioID uint64, r *http.Requ
 	// lendo o json
 	if erro = json.NewDecoder(response.Body).Decode(&publicacoes); erro != nil {
 		canal <- nil
+		return
+	}
+
+	// verificando se a quantidade publicações é 0
+	if publicacoes == nil {
+		canal <- make([]Publicacao, 0) // slice vazio
 		return
 	}
 
