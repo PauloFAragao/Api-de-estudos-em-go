@@ -169,18 +169,23 @@ func CarregarPerfilDoUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// pegando o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// pegando o id do usuário no cookie
+	usuarioLogadoID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	// verificando se o perfil que está sendo acessado é o do usuário logado
+	if usuarioID == usuarioLogadoID {
+		http.Redirect(w, r, "/perfil", http.StatusFound)
+	}
+
 	// pedindo pra api os dados do usuário
 	usuario, erro := modelos.BuscarUsuarioCompleto(usuarioID, r)
 	if erro != nil {
 		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
 		return
 	}
-
-	// pegando o cookie
-	cookie, _ := cookies.Ler(r)
-
-	// pegando o id do usuário no cookie
-	usuarioLogadoID, _ := strconv.ParseUint(cookie["id"], 10, 64)
 
 	// renderizando a pagina
 	utils.ExecutarTemplate(w, "usuario.html", struct {
@@ -190,5 +195,25 @@ func CarregarPerfilDoUsuario(w http.ResponseWriter, r *http.Request) {
 		Usuario:         usuario,
 		UsuarioLogadoID: usuarioLogadoID,
 	})
+
+}
+
+// CarregarPerfilDoUsuarioLogado carrega a página do perfil do usuário logado
+func CarregarPerfilDoUsuarioLogado(w http.ResponseWriter, r *http.Request) {
+
+	// pegando o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// pegando o id do usuário no cookie
+	usuarioID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	// pedindo pra api os dados do usuário
+	usuario, erro := modelos.BuscarUsuarioCompleto(usuarioID, r)
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	utils.ExecutarTemplate(w, "perfil.html", usuario)
 
 }
