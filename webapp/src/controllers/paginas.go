@@ -217,3 +217,30 @@ func CarregarPerfilDoUsuarioLogado(w http.ResponseWriter, r *http.Request) {
 	utils.ExecutarTemplate(w, "perfil.html", usuario)
 
 }
+
+// CarregarPaginaDeEdicaoDeUsuario carrega pagina para edição dos dados do usuário
+func CarregarPaginaDeEdicaoDeUsuario(w http.ResponseWriter, r *http.Request) {
+
+	// pegando o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// pegando o id do usuário no cookie
+	usuarioID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	// canal para enviar para a função que pesquisa dados do usuário
+	canal := make(chan modelos.Usuario)
+
+	// chamando a função que busca dados do usuário usando concorrência
+	go modelos.BuscarDadosDoUsuario(canal, usuarioID, r)
+
+	// recebendo os dados do canal
+	usuario := <-canal
+
+	// verificando se recebeu os dados corretamente
+	if usuario.ID == 0 {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: "erro ao buscar o usuário"})
+		return
+	}
+
+	utils.ExecutarTemplate(w, "editar-usuario.html", usuario)
+}

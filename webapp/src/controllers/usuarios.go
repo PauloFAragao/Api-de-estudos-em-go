@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"webapp/src/config"
+	"webapp/src/cookies"
 	"webapp/src/requisicoes"
 	"webapp/src/respostas"
 
@@ -113,4 +114,50 @@ func SeguirUsuario(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respostas.JSON(w, response.StatusCode, nil)
+}
+
+// EditarUsuario chama a api para editar um usuário
+func EditarUsuario(w http.ResponseWriter, r *http.Request) {
+
+	// pegando o corpo da requisição
+	r.ParseForm()
+
+	// montando json para enviar para api com um map
+	usuario, erro := json.Marshal(map[string]string{
+		"nome":  r.FormValue("nome"),
+		"email": r.FormValue("email"),
+		"nick":  r.FormValue("nick"),
+	})
+	if erro != nil {
+		respostas.JSON(w, http.StatusBadRequest, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	// pegando o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// pegando o id do usuário do cookie
+	usuarioID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	//url para a api
+	url := fmt.Sprintf("%s/usuarios/%d", config.APIURL, usuarioID)
+
+	// recebendo resposta da api
+	response, erro := requisicoes.FazerRequisicaoComAutenticacao(r, http.MethodPut, url, bytes.NewBuffer(usuario))
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	// verificando se o status code está no range de erro
+	if response.StatusCode >= 400 {
+		// enviando a resposta de erro
+		respostas.TratarStatusCodeDeErro(w, response)
+		return
+	}
+
+	// enviando resposta
+	respostas.JSON(w, response.StatusCode, nil)
+
 }
