@@ -61,7 +61,7 @@ function atualizarSenha(evento)
 {
     evento.preventDefault();
 
-    if($('nova-senha').val() != $('#confirmar-senha').val()){
+    if($('#nova-senha').val() != $('#confirmar-senha').val()){
         Swal.fire("Ops...", "As senhas não coincidem!", "warning")
         return
     }
@@ -71,7 +71,7 @@ function atualizarSenha(evento)
         method: "POST",
         data:{
             atual: $('#senha-atual').val(),
-            nova: $('nova-senha').val()
+            nova: $('#nova-senha').val()
         }
     }).done(function(){
         Swal.fire("Sucesso!", "A senha foi atualizada com sucesso!", "success")

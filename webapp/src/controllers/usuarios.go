@@ -161,3 +161,47 @@ func EditarUsuario(w http.ResponseWriter, r *http.Request) {
 	respostas.JSON(w, response.StatusCode, nil)
 
 }
+
+// AtualizarSenha chama a api para atualizar a senha do usuário
+func AtualizarSenha(w http.ResponseWriter, r *http.Request) {
+	// pegando o corpo da requisição
+	r.ParseForm()
+
+	// montando json para enviar para api com um map
+	senhas, erro := json.Marshal(map[string]string{
+		"atual": r.FormValue("atual"),
+		"nova":  r.FormValue("nova"),
+	})
+	if erro != nil {
+		respostas.JSON(w, http.StatusBadRequest, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+
+	// pegando o cookie
+	cookie, _ := cookies.Ler(r)
+
+	// pegando o id do usuário do cookie
+	usuarioID, _ := strconv.ParseUint(cookie["id"], 10, 64)
+
+	//url para a api
+	url := fmt.Sprintf("%s/usuarios/%d/atualizar-senha", config.APIURL, usuarioID)
+
+	// recebendo resposta da api
+	response, erro := requisicoes.FazerRequisicaoComAutenticacao(r, http.MethodPost, url, bytes.NewBuffer(senhas))
+	if erro != nil {
+		respostas.JSON(w, http.StatusInternalServerError, respostas.ErroAPI{Erro: erro.Error()})
+		return
+	}
+	defer response.Body.Close()
+
+	// verificando se o status code está no range de erro
+	if response.StatusCode >= 400 {
+		// enviando a resposta de erro
+		respostas.TratarStatusCodeDeErro(w, response)
+		return
+	}
+
+	// enviando resposta
+	respostas.JSON(w, response.StatusCode, nil)
+
+}
